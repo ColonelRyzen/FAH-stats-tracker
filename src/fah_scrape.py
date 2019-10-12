@@ -6,6 +6,8 @@ import glob
 import time
 from datetime import datetime
 from config import *
+from collections import defaultdict
+import operator
 
 
 #####################################################
@@ -45,16 +47,56 @@ def calculate_ppd():
     files = glob.glob(stats_folder_dir + "*.csv")
     files.sort(key=os.path.getmtime)
 
-    print(files)
-    print(len(files))
+    users_score_dict = defaultdict(list)
+    users_ppd_sorted_dict = {}
+
+
+    # print(files)
+    # print(len(files))
     if len(files) >= 24:
         # Determine if time between most recent file and 24 files previous has been 24 hours or greater (margine of error 5 minutes)
         print("Can calulate PPD")
+        latest_file = csv.reader(open(files[-1], newline=''), delimiter=',')
+        prev_day_file = csv.reader(open(files[len(files)-25], newline=''),delimiter=',')
+
+        # Add score from 24 hours ago to dictionary with username as key
+        for row2 in prev_day_file:
+            users_score_dict[row2[2]].append(row2[3])
+
+        # Append score from latest data file to the associated username entry in dict
+        for row1 in latest_file:
+            users_score_dict[row1[2]].append(row1[3])
+
+        for user in users_score_dict:
+            ppd = int(users_score_dict[user][1]) - int(users_score_dict[user][0])
+            users_ppd_sorted_dict[user] = ppd
+
+        sorted_ppd_list = sorted(users_ppd_sorted_dict.items(), key=lambda kv: kv[1], reverse=True)
+        results_file = open("ppd_results_sorted.txt", "w+")
+        for i in range(0,100):
+            stripped_item = str(sorted_ppd_list[i]).rstrip(")")
+            results_file.write(str(i) + ": " + stripped_item[1:] + "\n")
+        results_file.close()
+
+
+
 
     else:
         # Calculate PPH between each pair of files and average
         print("Can only calculate PPH")
 
+        # # Loop through the top 24 elements
+        # for filename in range(len(files)-1, len(files)-25, -1):
+        #     # print(files[filename].lstrip(stats_folder_dir))
+        #     file = csv.reader(open(files[filename], newline=''), delimiter=',')
+        #     for row in file:
+        #         # print(row[3])
+        #         users_score_dict[row[2]].append(row[3])
+        #
+        # for user in users_score_dict:
+        #     for score in user:
+        #
+        #     # print(users_score_dict)
 
 
 
