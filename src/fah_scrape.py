@@ -73,7 +73,7 @@ def calculate_ppd():
 
         sorted_ppd_list = sorted(users_ppd_sorted_dict.items(), key=lambda kv: kv[1], reverse=True)
         results_file = open("ppd_results_sorted.txt", "w+")
-        for i in range(0,100):
+        for i in range(0,number_of_results):
             stripped_item = str(sorted_ppd_list[i]).rstrip(")")
             results_file.write(str(i) + ": " + stripped_item[1:] + "\n")
         results_file.close()
