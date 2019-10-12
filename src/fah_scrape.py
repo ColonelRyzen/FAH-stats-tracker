@@ -24,7 +24,8 @@ def get_latest_stats():
     members_table_entries = members_table.find_all('tr')
 
     # Creating CSV file
-    f = csv.writer(open(stats_folder_dir + file_name , 'w'))
+    file = open(stats_folder_dir + file_name , 'w+')
+    f = csv.writer(file, delimiter=',')
 
     # Getting the string contents of each row and storing in CSV
     for entry in members_table_entries[1:]:
@@ -48,8 +49,8 @@ def calculate_ppd():
     files.sort(key=os.path.getmtime)
 
     users_score_dict = defaultdict(list)
-    users_ppd_sorted_dict = {}
-
+    users_ppd_dict = {}
+    users_pph_dict = {}
 
     # print(files)
     # print(len(files))
@@ -69,14 +70,14 @@ def calculate_ppd():
 
         for user in users_score_dict:
             ppd = int(users_score_dict[user][1]) - int(users_score_dict[user][0])
-            users_ppd_sorted_dict[user] = ppd
+            users_ppd_dict[user] = ppd
 
         sorted_ppd_list = sorted(users_ppd_sorted_dict.items(), key=lambda kv: kv[1], reverse=True)
-        results_file = open("ppd_results_sorted.txt", "w+")
+        ppd_results_file = open("ppd-results-sorted_"+ now.strftime("%m-%d-%Y_%H-%M-%S") +".txt", "w+")
         for i in range(0,number_of_results):
             stripped_item = str(sorted_ppd_list[i]).rstrip(")")
-            results_file.write(str(i) + ": " + stripped_item[1:] + "\n")
-        results_file.close()
+            ppd_results_file.write(str(i) + ": " + stripped_item[1:] + "\n")
+        ppd_results_file.close()
 
 
 
@@ -84,9 +85,9 @@ def calculate_ppd():
     else:
         # Calculate PPH between each pair of files and average
         print("Can only calculate PPH")
-
+        # num_files = len([name for name in os.listdir(stats_folder_dir) if os.path.isfile(name)])
         # # Loop through the top 24 elements
-        # for filename in range(len(files)-1, len(files)-25, -1):
+        # for filename in range(len(files)-1, len(files)-num_files, -1):
         #     # print(files[filename].lstrip(stats_folder_dir))
         #     file = csv.reader(open(files[filename], newline=''), delimiter=',')
         #     for row in file:
@@ -94,10 +95,20 @@ def calculate_ppd():
         #         users_score_dict[row[2]].append(row[3])
         #
         # for user in users_score_dict:
-        #     for score in user:
+        #     total_score = 0
+        #     for score in users_score_dict[user]:
+        #         total_score = total_score + int(score)
+        #     avg_pph = total_score/len(users_score_dict[user])
+        #     users_pph_dict[user] = avg_pph
         #
-        #     # print(users_score_dict)
-
+        # sorted_pph_list = sorted(users_pph_dict.items(), key=lambda kv: kv[1], reverse=True)
+        # print(sorted_pph_list)
+        # print(len(sorted_pph_list))
+        # pph_results_file = open("pph_results_file.txt", "w+")
+        # for i in range(0, number_of_results):
+        #     stripped_item = str(sorted_pph_list[i]).rstrip(")")
+        #     pph_results_file.write(str(i) + ": " + stripped_item[1:] + "\n")
+        # pph_results_file.close()
 
 
 def main():
